@@ -16,6 +16,9 @@ app.get('/', (req, res) => {
 })
 
 const backEndPlayers = {}
+const backEndProjectiles = {}
+
+let projectileId = 0
 
 io.on('connection', (socket) => {
   console.log('a user connected')
@@ -27,6 +30,26 @@ io.on('connection', (socket) => {
   }
 
   io.emit('updatePlayers', backEndPlayers)
+
+  socket.on('initCanvas', ({ width, height }) => {
+    backEndPlayers[socket.id].canvas = { width, height }
+  })
+
+  socket.on('shoot', ({x, y, angle}) => {
+    projectileId++;
+
+    const velocity = {
+        x: Math.cos(angle) * 5,
+        y: Math.sin(angle) * 5
+    }
+
+    backEndProjectiles[projectileId] = {
+      x, 
+      y,
+      velocity,
+      playerId: socket.id
+    }
+  })
 
   socket.on('disconnect', (reason) => {
     console.log(reason)
@@ -58,7 +81,27 @@ io.on('connection', (socket) => {
   console.log(backEndPlayers)
 })
 
+// backend ticker
 setInterval(() => {
+  // update projectile position
+  for (const id in backEndProjectiles) {
+    backEndProjectiles[id].x += backEndProjectiles[id].velocity.x
+    backEndProjectiles[id].y += backEndProjectiles[id].velocity.y
+
+    const PROJECTILE_RADIUS = 5
+    if (
+      backEndProjectiles[id].x - PROJECTILE_RADIUS >=
+        backEndPlayers[backEndProjectiles[id].playerId]?.canvas?.width ||
+      backEndProjectiles[id].x + PROJECTILE_RADIUS <= 0 ||
+      backEndProjectiles[id].y - PROJECTILE_RADIUS >=
+        backEndPlayers[backEndProjectiles[id].playerId]?.canvas?.height ||
+      backEndProjectiles[id].y + PROJECTILE_RADIUS <= 0
+    ) {
+      delete backEndProjectiles[id]
+    }
+  }
+
+  io.emit('updateProjectiles', backEndProjectiles)
   io.emit('updatePlayers', backEndPlayers)
 }, 15)
 
