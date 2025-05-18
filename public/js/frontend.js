@@ -60,7 +60,34 @@ socket.on('updatePlayers', (backEndPlayers) => {
         radius: 10,
         color: backEndPlayer.color
       })
+
+      document.querySelector('#playerLabels').innerHTML += 
+      `<div data-id="${id} data-score="${backEndPlayer.score}">${id}: ${backEndPlayer.score}</div>`
     } else {
+      document.querySelector(`div[data-id="${id}"]`).innerHTML = `${id}: ${backEndPlayer.score}`
+      document.querySelector(`div[data-id="${id}"]`).setAttribute('data-score', backEndPlayer.score)
+
+      // sorts players div
+      const parentDiv = document.querySelector('#playerLabels')
+      const childDivs = Array.from(parentDiv.querySelectorAll('div'))
+
+      childDivs.sort((a, b) => {
+        const scoreA = Number(a.getAttribute('data-score'))
+        const scoreB = Number(b.getAttribute('data-score'))
+
+        return scoreB - scoreA
+      })
+
+      // removes old elements
+      childDivs.forEach(div => {
+        parentDiv.removeChild(div)
+      })
+
+      // adds sorted elements
+      childDivs.forEach(div => {
+        parentDiv.appendChild(div)
+      })
+
       if (id === socket.id) {
         // if a player already exists
         frontEndPlayers[id].x = backEndPlayer.x
@@ -91,6 +118,8 @@ socket.on('updatePlayers', (backEndPlayers) => {
 
   for (const id in frontEndPlayers) {
     if(!backEndPlayers[id]) {
+      const divToDelete = document.querySelector(`div[data-id="${id}"]`)
+      divToDelete.parentNode.removeChild(divToDelete)
       delete frontEndPlayers[id]
     }
   }
