@@ -1,12 +1,23 @@
+<!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiplayer Game</title>
     <style>
+      html, body {
+        height: 100%;
+      }
+
       body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
         margin: 0;
         background: #94a3b8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       input::placeholder {
@@ -14,8 +25,6 @@
       }
 
       canvas {
-        width: 1024px;
-        height: 576px;
         background-image: url('/img/webb-dark.png');
       }
     </style>
@@ -37,7 +46,7 @@
         <div id="playerLabels"></div>
       </div>
   
-      <canvas></canvas>
+      <canvas width="1024" height="576"></canvas>
   
       <div
         style="

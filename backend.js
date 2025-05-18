@@ -7,12 +7,12 @@ const server = http.createServer(app)
 const { Server } = require('socket.io')
 const io = new Server(server, { pingInterval: 2000, pingTimeout: 5000 })
 
-const port = 3000
+const port = process.env.PORT || 3000
 
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html')
+  res.sendFile(__dirname + '/public/index.html')
 })
 
 const backEndPlayers = {}
@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
     const backEndPlayer = backEndPlayers[socket.id]
 
     if(!backEndPlayers[socket.id]) return
-    
+
     backEndPlayers[socket.id].sequenceNumber = sequenceNumber
 
     switch(keycode) {
