@@ -1,6 +1,9 @@
 {
   "name": "multiplayer-game",
   "version": "1.0.0",
+  "engines": {
+    "node": "20.18.3"
+  },
   "main": "backend.js",
   "scripts": {
     "start": "node backend.js"
