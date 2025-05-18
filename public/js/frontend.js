@@ -16,14 +16,6 @@ const y = canvas.height / 2
 const frontEndPlayers = {}
 const frontEndProjectiles = {}
 
-socket.on('connect', () => {
-  socket.emit('initCanvas', { 
-    width: canvas.width, 
-    height: canvas.height, 
-    devicePixelRatio
-  })
-})
-
 socket.on('updateProjectiles', (backEndProjectiles) => {
   for (const id in backEndProjectiles) {
     const backEndProjectile = backEndProjectiles[id]
@@ -61,13 +53,19 @@ socket.on('updatePlayers', (backEndPlayers) => {
         color: backEndPlayer.color
       })
 
-      document.querySelector('#playerLabels').innerHTML += 
-      `<div data-id="${id} data-score="${backEndPlayer.score}">${id}: ${backEndPlayer.score}</div>`
+      document.querySelector(
+        '#playerLabels'
+      ).innerHTML += `<div data-id="${id}" data-score="${backEndPlayer.score}">${backEndPlayer.username}: ${backEndPlayer.score}</div>`
     } else {
-      document.querySelector(`div[data-id="${id}"]`).innerHTML = `${id}: ${backEndPlayer.score}`
-      document.querySelector(`div[data-id="${id}"]`).setAttribute('data-score', backEndPlayer.score)
+      document.querySelector(
+        `div[data-id="${id}"]`
+      ).innerHTML = `${backEndPlayer.username}: ${backEndPlayer.score}`
 
-      // sorts players div
+      document
+        .querySelector(`div[data-id="${id}"]`)
+        .setAttribute('data-score', backEndPlayer.score)
+
+      // sorts the players divs
       const parentDiv = document.querySelector('#playerLabels')
       const childDivs = Array.from(parentDiv.querySelectorAll('div'))
 
@@ -79,12 +77,12 @@ socket.on('updatePlayers', (backEndPlayers) => {
       })
 
       // removes old elements
-      childDivs.forEach(div => {
+      childDivs.forEach((div) => {
         parentDiv.removeChild(div)
       })
 
       // adds sorted elements
-      childDivs.forEach(div => {
+      childDivs.forEach((div) => {
         parentDiv.appendChild(div)
       })
 
@@ -117,9 +115,14 @@ socket.on('updatePlayers', (backEndPlayers) => {
   }
 
   for (const id in frontEndPlayers) {
-    if(!backEndPlayers[id]) {
+    if (!backEndPlayers[id]) {
       const divToDelete = document.querySelector(`div[data-id="${id}"]`)
       divToDelete.parentNode.removeChild(divToDelete)
+
+      if (id === socket.id) {
+        document.querySelector('#usernameForm').style.display = 'block'
+      }
+
       delete frontEndPlayers[id]
     }
   }
@@ -221,4 +224,15 @@ window.addEventListener('keyup', (event) => {
       keys.d.pressed = false
       break
   }
+})
+
+document.querySelector('#usernameForm').addEventListener('submit', (event) => {
+  event.preventDefault()
+  document.querySelector('#usernameForm').style.display = 'none'
+  socket.emit('initGame', {
+    username: document.querySelector('#usernameInput').value,
+    width: canvas.width, 
+    height: canvas.height, 
+    devicePixelRatio
+  })
 })

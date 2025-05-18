@@ -25,25 +25,8 @@ const SPEED = 10
 
 io.on('connection', (socket) => {
   console.log('a user connected')
-  backEndPlayers[socket.id] = {
-    x: 500 * Math.random(),
-    y: 500 * Math.random(),
-    color: `hsl(${360 * Math.random()}, 100%, 50%)`,
-    sequenceNumber: 0,
-    score: 0
-  }
 
   io.emit('updatePlayers', backEndPlayers)
-
-  socket.on('initCanvas', ({ width, height, devicePixelRatio }) => {
-    backEndPlayers[socket.id].canvas = { width, height }
-
-    backEndPlayers[socket.id].radius = RADIUS
-
-    if (devicePixelRatio > 1) {
-      backEndPlayers[socket.id].radius = 2 * RADIUS
-    }
-  })
 
   socket.on('shoot', ({x, y, angle}) => {
     projectileId++;
@@ -58,6 +41,25 @@ io.on('connection', (socket) => {
       y,
       velocity,
       playerId: socket.id
+    }
+  })
+
+  socket.on('initGame', ({username, width, height, devicePixelRatio }) => {
+    backEndPlayers[socket.id] = {
+      x: 500 * Math.random(),
+      y: 500 * Math.random(),
+      color: `hsl(${360 * Math.random()}, 100%, 50%)`,
+      sequenceNumber: 0,
+      score: 0,
+      username
+    }
+
+    backEndPlayers[socket.id].canvas = { width, height }
+
+    backEndPlayers[socket.id].radius = RADIUS
+
+    if (devicePixelRatio > 1) {
+      backEndPlayers[socket.id].radius = 2 * RADIUS
     }
   })
 
@@ -121,7 +123,7 @@ setInterval(() => {
       ) {
         if(backEndPlayers[backEndProjectiles[id].playerId]) 
           backEndPlayers[backEndProjectiles[id].playerId].score++
-        
+
         delete backEndProjectiles[id]
         delete backEndPlayers[playerId]
         break
