@@ -21,7 +21,7 @@ const backEndProjectiles = {}
 let projectileId = 0
 const RADIUS = 10
 const PROJECTILE_RADIUS = 5
-const SPEED = 10
+const SPEED = 5
 
 io.on('connection', (socket) => {
   console.log('a user connected')
@@ -68,6 +68,8 @@ io.on('connection', (socket) => {
   socket.on('keydown', ({keycode, sequenceNumber}) => {
     const backEndPlayer = backEndPlayers[socket.id]
 
+    if(!backEndPlayers[socket.id]) return
+    
     backEndPlayers[socket.id].sequenceNumber = sequenceNumber
 
     switch(keycode) {
